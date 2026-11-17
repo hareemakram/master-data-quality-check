@@ -1,0 +1,816 @@
+{
+ "Countries": [
+  {
+   "CountryCode": "US",
+   "CountryName": "United States",
+   "Region": "NA",
+   "DefaultCurrency": "USD",
+   "PhoneCode": "1",
+   "PostalPattern": "#####|#####-####",
+   "TaxIDPattern": "##-#######",
+   "IBANLength": null
+  },
+  {
+   "CountryCode": "CA",
+   "CountryName": "Canada",
+   "Region": "NA",
+   "DefaultCurrency": "CAD",
+   "PhoneCode": "1",
+   "PostalPattern": "@#@ #@#",
+   "TaxIDPattern": "#########",
+   "IBANLength": null
+  },
+  {
+   "CountryCode": "MX",
+   "CountryName": "Mexico",
+   "Region": "LATAM",
+   "DefaultCurrency": "MXN",
+   "PhoneCode": "52",
+   "PostalPattern": "#####",
+   "TaxIDPattern": "@@@######???",
+   "IBANLength": null
+  },
+  {
+   "CountryCode": "BR",
+   "CountryName": "Brazil",
+   "Region": "LATAM",
+   "DefaultCurrency": "BRL",
+   "PhoneCode": "55",
+   "PostalPattern": "#####-###",
+   "TaxIDPattern": "##.###.###/####-##",
+   "IBANLength": null
+  },
+  {
+   "CountryCode": "GB",
+   "CountryName": "United Kingdom",
+   "Region": "EMEA",
+   "DefaultCurrency": "GBP",
+   "PhoneCode": "44",
+   "PostalPattern": "@# #@@|@## #@@|@@# #@@|@@## #@@|@#@ #@@|@@#@ #@@",
+   "TaxIDPattern": "GB#########",
+   "IBANLength": 22
+  },
+  {
+   "CountryCode": "DE",
+   "CountryName": "Germany",
+   "Region": "EMEA",
+   "DefaultCurrency": "EUR",
+   "PhoneCode": "49",
+   "PostalPattern": "#####",
+   "TaxIDPattern": "DE#########",
+   "IBANLength": 22
+  },
+  {
+   "CountryCode": "FR",
+   "CountryName": "France",
+   "Region": "EMEA",
+   "DefaultCurrency": "EUR",
+   "PhoneCode": "33",
+   "PostalPattern": "#####",
+   "TaxIDPattern": "FR??#########",
+   "IBANLength": 27
+  },
+  {
+   "CountryCode": "NL",
+   "CountryName": "Netherlands",
+   "Region": "EMEA",
+   "DefaultCurrency": "EUR",
+   "PhoneCode": "31",
+   "PostalPattern": "#### @@",
+   "TaxIDPattern": "NL#########B##",
+   "IBANLength": 18
+  },
+  {
+   "CountryCode": "ES",
+   "CountryName": "Spain",
+   "Region": "EMEA",
+   "DefaultCurrency": "EUR",
+   "PhoneCode": "34",
+   "PostalPattern": "#####",
+   "TaxIDPattern": "ES?#######?",
+   "IBANLength": 24
+  },
+  {
+   "CountryCode": "IT",
+   "CountryName": "Italy",
+   "Region": "EMEA",
+   "DefaultCurrency": "EUR",
+   "PhoneCode": "39",
+   "PostalPattern": "#####",
+   "TaxIDPattern": "IT###########",
+   "IBANLength": 27
+  },
+  {
+   "CountryCode": "AE",
+   "CountryName": "United Arab Emirates",
+   "Region": "EMEA",
+   "DefaultCurrency": "AED",
+   "PhoneCode": "971",
+   "PostalPattern": "",
+   "TaxIDPattern": "###############",
+   "IBANLength": 23
+  },
+  {
+   "CountryCode": "IN",
+   "CountryName": "India",
+   "Region": "APAC",
+   "DefaultCurrency": "INR",
+   "PhoneCode": "91",
+   "PostalPattern": "######",
+   "TaxIDPattern": "##@@@@@####@?Z?",
+   "IBANLength": null
+  },
+  {
+   "CountryCode": "SG",
+   "CountryName": "Singapore",
+   "Region": "APAC",
+   "DefaultCurrency": "SGD",
+   "PhoneCode": "65",
+   "PostalPattern": "######",
+   "TaxIDPattern": "#########@",
+   "IBANLength": null
+  },
+  {
+   "CountryCode": "AU",
+   "CountryName": "Australia",
+   "Region": "APAC",
+   "DefaultCurrency": "AUD",
+   "PhoneCode": "61",
+   "PostalPattern": "####",
+   "TaxIDPattern": "## ### ### ###",
+   "IBANLength": null
+  },
+  {
+   "CountryCode": "JP",
+   "CountryName": "Japan",
+   "Region": "APAC",
+   "DefaultCurrency": "JPY",
+   "PhoneCode": "81",
+   "PostalPattern": "###-####",
+   "TaxIDPattern": "#############",
+   "IBANLength": null
+  }
+ ],
+ "Lists": [
+  {
+   "ListName": "Currency",
+   "Value": "AED"
+  },
+  {
+   "ListName": "Currency",
+   "Value": "AUD"
+  },
+  {
+   "ListName": "Currency",
+   "Value": "BRL"
+  },
+  {
+   "ListName": "Currency",
+   "Value": "CAD"
+  },
+  {
+   "ListName": "Currency",
+   "Value": "CHF"
+  },
+  {
+   "ListName": "Currency",
+   "Value": "CNY"
+  },
+  {
+   "ListName": "Currency",
+   "Value": "EUR"
+  },
+  {
+   "ListName": "Currency",
+   "Value": "GBP"
+  },
+  {
+   "ListName": "Currency",
+   "Value": "INR"
+  },
+  {
+   "ListName": "Currency",
+   "Value": "JPY"
+  },
+  {
+   "ListName": "Currency",
+   "Value": "MXN"
+  },
+  {
+   "ListName": "Currency",
+   "Value": "SEK"
+  },
+  {
+   "ListName": "Currency",
+   "Value": "SGD"
+  },
+  {
+   "ListName": "Currency",
+   "Value": "USD"
+  },
+  {
+   "ListName": "PaymentTerms",
+   "Value": "NT15"
+  },
+  {
+   "ListName": "PaymentTerms",
+   "Value": "NT30"
+  },
+  {
+   "ListName": "PaymentTerms",
+   "Value": "NT45"
+  },
+  {
+   "ListName": "PaymentTerms",
+   "Value": "NT60"
+  },
+  {
+   "ListName": "PaymentTerms",
+   "Value": "NT90"
+  },
+  {
+   "ListName": "PaymentTerms",
+   "Value": "2/10NT30"
+  },
+  {
+   "ListName": "PaymentTerms",
+   "Value": "COD"
+  },
+  {
+   "ListName": "UoM",
+   "Value": "EA"
+  },
+  {
+   "ListName": "UoM",
+   "Value": "KG"
+  },
+  {
+   "ListName": "UoM",
+   "Value": "G"
+  },
+  {
+   "ListName": "UoM",
+   "Value": "L"
+  },
+  {
+   "ListName": "UoM",
+   "Value": "ML"
+  },
+  {
+   "ListName": "UoM",
+   "Value": "M"
+  },
+  {
+   "ListName": "UoM",
+   "Value": "CM"
+  },
+  {
+   "ListName": "UoM",
+   "Value": "BOX"
+  },
+  {
+   "ListName": "UoM",
+   "Value": "PAL"
+  },
+  {
+   "ListName": "UoM",
+   "Value": "SET"
+  },
+  {
+   "ListName": "UoM",
+   "Value": "ROL"
+  },
+  {
+   "ListName": "UoM",
+   "Value": "HR"
+  },
+  {
+   "ListName": "MaterialType",
+   "Value": "FERT"
+  },
+  {
+   "ListName": "MaterialType",
+   "Value": "HALB"
+  },
+  {
+   "ListName": "MaterialType",
+   "Value": "ROH"
+  },
+  {
+   "ListName": "MaterialType",
+   "Value": "HAWA"
+  },
+  {
+   "ListName": "MaterialType",
+   "Value": "DIEN"
+  },
+  {
+   "ListName": "Status",
+   "Value": "Active"
+  },
+  {
+   "ListName": "Status",
+   "Value": "Blocked"
+  },
+  {
+   "ListName": "Status",
+   "Value": "Inactive"
+  },
+  {
+   "ListName": "Plant",
+   "Value": "1000"
+  },
+  {
+   "ListName": "Plant",
+   "Value": "1100"
+  },
+  {
+   "ListName": "Plant",
+   "Value": "2000"
+  },
+  {
+   "ListName": "Plant",
+   "Value": "3000"
+  },
+  {
+   "ListName": "Plant",
+   "Value": "4000"
+  },
+  {
+   "ListName": "PurchasedMaterialType",
+   "Value": "ROH"
+  },
+  {
+   "ListName": "PurchasedMaterialType",
+   "Value": "HAWA"
+  }
+ ],
+ "Rules": [
+  {
+   "RuleID": "DUP-001",
+   "Category": "Duplicate",
+   "RuleName": "Duplicate record ID",
+   "AppliesTo": "Customer, Vendor, Material",
+   "Severity": "Critical",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "The same primary key appears on more than one row. Every occurrence after the first is flagged."
+  },
+  {
+   "RuleID": "DUP-002",
+   "Category": "Duplicate",
+   "RuleName": "Exact duplicate record",
+   "AppliesTo": "Customer, Vendor, Material",
+   "Severity": "High",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Same normalised name and country (partners) or same normalised description, type and UoM (materials)."
+  },
+  {
+   "RuleID": "DUP-003",
+   "Category": "Duplicate",
+   "RuleName": "Duplicate tax ID",
+   "AppliesTo": "Customer, Vendor",
+   "Severity": "High",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Two records share the same tax / VAT registration number."
+  },
+  {
+   "RuleID": "DUP-004",
+   "Category": "Duplicate",
+   "RuleName": "Duplicate email address",
+   "AppliesTo": "Customer, Vendor",
+   "Severity": "Medium",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Two records share the same email address."
+  },
+  {
+   "RuleID": "DUP-005",
+   "Category": "Duplicate",
+   "RuleName": "Potential (fuzzy) duplicate",
+   "AppliesTo": "Customer, Vendor, Material",
+   "Severity": "Medium",
+   "Enabled": true,
+   "Threshold": 0.85,
+   "Description": "Name/description similarity (Dice coefficient on character bigrams) at or above the threshold within the same country or material type."
+  },
+  {
+   "RuleID": "DUP-006",
+   "Category": "Duplicate",
+   "RuleName": "Duplicate bank account (IBAN)",
+   "AppliesTo": "Vendor",
+   "Severity": "Critical",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Two vendors are paid into the same bank account - a common payment-fraud indicator."
+  },
+  {
+   "RuleID": "MIS-001",
+   "Category": "Missing",
+   "RuleName": "Required field missing",
+   "AppliesTo": "Customer, Vendor, Material",
+   "Severity": "High",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "A field listed in the Required Fields table is blank."
+  },
+  {
+   "RuleID": "MIS-002",
+   "Category": "Missing",
+   "RuleName": "Purchased material has no vendor",
+   "AppliesTo": "Material",
+   "Severity": "High",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Materials whose type is in the PurchasedMaterialType list (ROH, HAWA by default) must have a preferred vendor."
+  },
+  {
+   "RuleID": "INC-001",
+   "Category": "Inconsistent",
+   "RuleName": "Invalid email format",
+   "AppliesTo": "Customer, Vendor",
+   "Severity": "Medium",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Email must have one @, a non-empty local part, a dotted domain, a 2+ letter TLD and no spaces."
+  },
+  {
+   "RuleID": "INC-002",
+   "Category": "Inconsistent",
+   "RuleName": "Invalid phone number",
+   "AppliesTo": "Customer, Vendor",
+   "Severity": "Low",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Phone must be +<country calling code> followed by digits, 8-15 digits in total."
+  },
+  {
+   "RuleID": "INC-003",
+   "Category": "Inconsistent",
+   "RuleName": "Invalid country code",
+   "AppliesTo": "Customer, Vendor",
+   "Severity": "High",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Country must be an upper-case ISO 3166 alpha-2 code from the Countries table."
+  },
+  {
+   "RuleID": "INC-004",
+   "Category": "Inconsistent",
+   "RuleName": "Tax ID format invalid for country",
+   "AppliesTo": "Customer, Vendor",
+   "Severity": "High",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Tax ID does not match the country's tax ID pattern."
+  },
+  {
+   "RuleID": "INC-005",
+   "Category": "Inconsistent",
+   "RuleName": "Postal code format invalid",
+   "AppliesTo": "Customer, Vendor",
+   "Severity": "Medium",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Postal code does not match the country's postal code pattern."
+  },
+  {
+   "RuleID": "INC-006",
+   "Category": "Inconsistent",
+   "RuleName": "Invalid currency code",
+   "AppliesTo": "Customer, Vendor, Material",
+   "Severity": "Medium",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Currency is not in the approved currency list."
+  },
+  {
+   "RuleID": "INC-007",
+   "Category": "Inconsistent",
+   "RuleName": "Invalid payment terms",
+   "AppliesTo": "Customer, Vendor",
+   "Severity": "Medium",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Payment terms are not in the approved payment terms list."
+  },
+  {
+   "RuleID": "INC-008",
+   "Category": "Inconsistent",
+   "RuleName": "Name formatting issue",
+   "AppliesTo": "Customer, Vendor, Material",
+   "Severity": "Low",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Leading/trailing spaces, repeated spaces or an all lower-case name."
+  },
+  {
+   "RuleID": "INC-009",
+   "Category": "Inconsistent",
+   "RuleName": "Invalid or future created date",
+   "AppliesTo": "Customer, Vendor, Material",
+   "Severity": "Medium",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Created date is not a valid date or is later than the run date."
+  },
+  {
+   "RuleID": "INC-010",
+   "Category": "Inconsistent",
+   "RuleName": "Invalid status value",
+   "AppliesTo": "Customer, Vendor, Material",
+   "Severity": "Low",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Status is not one of the approved status values."
+  },
+  {
+   "RuleID": "INC-011",
+   "Category": "Inconsistent",
+   "RuleName": "Invalid unit of measure",
+   "AppliesTo": "Material",
+   "Severity": "High",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Base unit of measure is not in the approved UoM list."
+  },
+  {
+   "RuleID": "INC-012",
+   "Category": "Inconsistent",
+   "RuleName": "Invalid material type",
+   "AppliesTo": "Material",
+   "Severity": "Medium",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Material type is not in the approved material type list."
+  },
+  {
+   "RuleID": "INC-013",
+   "Category": "Inconsistent",
+   "RuleName": "Vendor not found in vendor master",
+   "AppliesTo": "Material",
+   "Severity": "High",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Preferred vendor ID does not exist in the vendor master (broken reference)."
+  },
+  {
+   "RuleID": "INC-014",
+   "Category": "Inconsistent",
+   "RuleName": "Preferred vendor is blocked",
+   "AppliesTo": "Material",
+   "Severity": "Medium",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Preferred vendor exists but its status is Blocked."
+  },
+  {
+   "RuleID": "INC-015",
+   "Category": "Inconsistent",
+   "RuleName": "Invalid numeric value",
+   "AppliesTo": "Customer, Material",
+   "Severity": "High",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Credit limit must be a number >= 0; standard price a number > 0; gross weight a number >= 0."
+  },
+  {
+   "RuleID": "INC-016",
+   "Category": "Inconsistent",
+   "RuleName": "Invalid IBAN",
+   "AppliesTo": "Vendor",
+   "Severity": "High",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "IBAN fails the length check for its country or the ISO 13616 mod-97 checksum."
+  },
+  {
+   "RuleID": "INC-017",
+   "Category": "Inconsistent",
+   "RuleName": "Invalid plant",
+   "AppliesTo": "Material",
+   "Severity": "Low",
+   "Enabled": true,
+   "Threshold": null,
+   "Description": "Plant is not in the approved plant list."
+  }
+ ],
+ "RequiredFields": [
+  {
+   "Entity": "Customer",
+   "Field": "CustomerID",
+   "Severity": "Critical"
+  },
+  {
+   "Entity": "Customer",
+   "Field": "CustomerName",
+   "Severity": "High"
+  },
+  {
+   "Entity": "Customer",
+   "Field": "Country",
+   "Severity": "High"
+  },
+  {
+   "Entity": "Customer",
+   "Field": "City",
+   "Severity": "Medium"
+  },
+  {
+   "Entity": "Customer",
+   "Field": "Email",
+   "Severity": "Medium"
+  },
+  {
+   "Entity": "Customer",
+   "Field": "TaxID",
+   "Severity": "High"
+  },
+  {
+   "Entity": "Customer",
+   "Field": "Currency",
+   "Severity": "High"
+  },
+  {
+   "Entity": "Customer",
+   "Field": "PaymentTerms",
+   "Severity": "Medium"
+  },
+  {
+   "Entity": "Customer",
+   "Field": "Status",
+   "Severity": "Medium"
+  },
+  {
+   "Entity": "Vendor",
+   "Field": "VendorID",
+   "Severity": "Critical"
+  },
+  {
+   "Entity": "Vendor",
+   "Field": "VendorName",
+   "Severity": "High"
+  },
+  {
+   "Entity": "Vendor",
+   "Field": "Country",
+   "Severity": "High"
+  },
+  {
+   "Entity": "Vendor",
+   "Field": "City",
+   "Severity": "Medium"
+  },
+  {
+   "Entity": "Vendor",
+   "Field": "Email",
+   "Severity": "Medium"
+  },
+  {
+   "Entity": "Vendor",
+   "Field": "TaxID",
+   "Severity": "High"
+  },
+  {
+   "Entity": "Vendor",
+   "Field": "Currency",
+   "Severity": "High"
+  },
+  {
+   "Entity": "Vendor",
+   "Field": "PaymentTerms",
+   "Severity": "High"
+  },
+  {
+   "Entity": "Vendor",
+   "Field": "Status",
+   "Severity": "Medium"
+  },
+  {
+   "Entity": "Material",
+   "Field": "MaterialID",
+   "Severity": "Critical"
+  },
+  {
+   "Entity": "Material",
+   "Field": "Description",
+   "Severity": "High"
+  },
+  {
+   "Entity": "Material",
+   "Field": "MaterialType",
+   "Severity": "High"
+  },
+  {
+   "Entity": "Material",
+   "Field": "BaseUoM",
+   "Severity": "High"
+  },
+  {
+   "Entity": "Material",
+   "Field": "MaterialGroup",
+   "Severity": "Medium"
+  },
+  {
+   "Entity": "Material",
+   "Field": "Plant",
+   "Severity": "High"
+  },
+  {
+   "Entity": "Material",
+   "Field": "StandardPrice",
+   "Severity": "High"
+  },
+  {
+   "Entity": "Material",
+   "Field": "Currency",
+   "Severity": "High"
+  },
+  {
+   "Entity": "Material",
+   "Field": "Status",
+   "Severity": "Medium"
+  }
+ ],
+ "Owners": [
+  {
+   "Entity": "Customer",
+   "Region": "NA",
+   "OwnerName": "Olivia Bennett",
+   "OwnerEmail": "olivia.bennett@contoso.com"
+  },
+  {
+   "Entity": "Customer",
+   "Region": "LATAM",
+   "OwnerName": "Mateo Alvarez",
+   "OwnerEmail": "mateo.alvarez@contoso.com"
+  },
+  {
+   "Entity": "Customer",
+   "Region": "EMEA",
+   "OwnerName": "Sophie Laurent",
+   "OwnerEmail": "sophie.laurent@contoso.com"
+  },
+  {
+   "Entity": "Customer",
+   "Region": "APAC",
+   "OwnerName": "Arjun Mehta",
+   "OwnerEmail": "arjun.mehta@contoso.com"
+  },
+  {
+   "Entity": "Vendor",
+   "Region": "NA",
+   "OwnerName": "Daniel Brooks",
+   "OwnerEmail": "daniel.brooks@contoso.com"
+  },
+  {
+   "Entity": "Vendor",
+   "Region": "LATAM",
+   "OwnerName": "Camila Rocha",
+   "OwnerEmail": "camila.rocha@contoso.com"
+  },
+  {
+   "Entity": "Vendor",
+   "Region": "EMEA",
+   "OwnerName": "Lukas Fischer",
+   "OwnerEmail": "lukas.fischer@contoso.com"
+  },
+  {
+   "Entity": "Vendor",
+   "Region": "APAC",
+   "OwnerName": "Mei Tanaka",
+   "OwnerEmail": "mei.tanaka@contoso.com"
+  },
+  {
+   "Entity": "Material",
+   "Region": "*",
+   "OwnerName": "Priya Nair",
+   "OwnerEmail": "priya.nair@contoso.com"
+  },
+  {
+   "Entity": "*",
+   "Region": "*",
+   "OwnerName": "Grace Okafor (Data Governance)",
+   "OwnerEmail": "data.governance@contoso.com"
+  }
+ ],
+ "Settings": [
+  {
+   "Setting": "RunDateOverride",
+   "Value": "",
+   "Notes": "Leave blank to use today's date. Set yyyy-mm-dd to reproduce a historical run."
+  },
+  {
+   "Setting": "GovernanceEmail",
+   "Value": "data.governance@contoso.com",
+   "Notes": "Receives the weekly summary and any flow failure alerts."
+  },
+  {
+   "Setting": "ReportLibrary",
+   "Value": "Shared Documents/Data Quality/Exception Reports",
+   "Notes": "SharePoint folder for weekly exception reports."
+  }
+ ]
+}

@@ -1,0 +1,253 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "$connections": {
+      "defaultValue": {},
+      "type": "Object"
+    },
+    "$authentication": {
+      "defaultValue": {},
+      "type": "SecureObject"
+    }
+  },
+  "triggers": {
+    "Every_Monday_7am": {
+      "recurrence": {
+        "frequency": "Week",
+        "interval": 1,
+        "timeZone": "Eastern Standard Time",
+        "schedule": {
+          "weekDays": [
+            "Monday"
+          ],
+          "hours": [
+            "7"
+          ],
+          "minutes": [
+            0
+          ]
+        }
+      },
+      "type": "Recurrence"
+    }
+  },
+  "actions": {
+    "Settings": {
+      "runAfter": {},
+      "type": "Compose",
+      "inputs": {
+        "SiteUrl": "https://contoso.sharepoint.com/sites/DataGovernance",
+        "ReportFolder": "/Shared Documents/Data Quality/Exception Reports",
+        "GovernanceEmail": "data.governance@contoso.com",
+        "TimeZone": "Eastern Standard Time",
+        "SendOwnerEmails": true
+      },
+      "description": "EDIT ME: SharePoint site, report folder, governance mailbox, time zone. Everything else reads from here."
+    },
+    "Try": {
+      "runAfter": {
+        "Settings": [
+          "Succeeded"
+        ]
+      },
+      "type": "Scope",
+      "actions": {
+        "Run_quality_checks": {
+          "runAfter": {},
+          "type": "OpenApiConnection",
+          "description": "Runs the RunQualityChecks Office Script in the workbook (same rules as Power Query) and returns the report, CSV and one email packet per data owner. Re-select Location / Document Library / File / Script after import.",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_excelonlinebusiness",
+              "operationId": "RunScriptProd",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness"
+            },
+            "parameters": {
+              "source": "sites/contoso.sharepoint.com,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000",
+              "drive": "b!REPLACE_WITH_DOCUMENT_LIBRARY",
+              "file": "REPLACE_WITH_MasterDataQuality.xlsx",
+              "scriptId": "REPLACE_WITH_RunQualityChecks",
+              "ScriptParameters/runDate": "@{formatDateTime(convertFromUtc(utcNow(), outputs('Settings')?['TimeZone']), 'yyyy-MM-dd')}"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Save_CSV_report_to_SharePoint": {
+          "runAfter": {
+            "Run_quality_checks": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "description": "Weekly exception report (CSV, opens in Excel).",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "CreateFile",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "@outputs('Settings')?['SiteUrl']",
+              "folderPath": "@outputs('Settings')?['ReportFolder']",
+              "name": "@{outputs('Run_quality_checks')?['body/result']?['reportName']}.csv",
+              "body": "@outputs('Run_quality_checks')?['body/result']?['csv']"
+            },
+            "authentication": "@parameters('$authentication')"
+          },
+          "runtimeConfiguration": {
+            "contentTransfer": {
+              "transferMode": "Chunked"
+            }
+          }
+        },
+        "Save_HTML_report_to_SharePoint": {
+          "runAfter": {
+            "Run_quality_checks": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "description": "Styled, filterable HTML version of the report (linked from the emails).",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "CreateFile",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "@outputs('Settings')?['SiteUrl']",
+              "folderPath": "@outputs('Settings')?['ReportFolder']",
+              "name": "@{outputs('Run_quality_checks')?['body/result']?['reportName']}.html",
+              "body": "@outputs('Run_quality_checks')?['body/result']?['reportHtml']"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Report_link": {
+          "runAfter": {
+            "Save_HTML_report_to_SharePoint": [
+              "Succeeded"
+            ],
+            "Save_CSV_report_to_SharePoint": [
+              "Succeeded"
+            ]
+          },
+          "type": "Compose",
+          "inputs": "@{outputs('Settings')?['SiteUrl']}@{replace(outputs('Save_HTML_report_to_SharePoint')?['body/Path'], ' ', '%20')}"
+        },
+        "Notify_owners_if_any_exceptions": {
+          "runAfter": {
+            "Report_link": [
+              "Succeeded"
+            ]
+          },
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "greater": [
+                  "@outputs('Run_quality_checks')?['body/result']?['exceptions']",
+                  0
+                ]
+              },
+              {
+                "equals": [
+                  "@outputs('Settings')?['SendOwnerEmails']",
+                  true
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "For_each_data_owner": {
+              "runAfter": {},
+              "type": "Foreach",
+              "foreach": "@outputs('Run_quality_checks')?['body/result']?['owners']",
+              "runtimeConfiguration": {
+                "concurrency": {
+                  "repetitions": 5
+                }
+              },
+              "actions": {
+                "Email_data_owner": {
+                  "runAfter": {},
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_office365",
+                      "operationId": "SendEmailV2",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                    },
+                    "parameters": {
+                      "emailMessage/To": "@items('For_each_data_owner')?['OwnerEmail']",
+                      "emailMessage/Subject": "Action needed: @{items('For_each_data_owner')?['Count']} master data exceptions (@{items('For_each_data_owner')?['Critical']} critical) - week of @{outputs('Run_quality_checks')?['body/result']?['runDate']}",
+                      "emailMessage/Body": "@{replace(items('For_each_data_owner')?['Html'], '{{REPORT_URL}}', outputs('Report_link'))}",
+                      "emailMessage/Importance": "@{if(greater(add(items('For_each_data_owner')?['Critical'], items('For_each_data_owner')?['High']), 0), 'High', 'Normal')}"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          }
+        },
+        "Email_governance_summary": {
+          "runAfter": {
+            "Notify_owners_if_any_exceptions": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_office365",
+              "operationId": "SendEmailV2",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+            },
+            "parameters": {
+              "emailMessage/To": "@outputs('Settings')?['GovernanceEmail']",
+              "emailMessage/Subject": "Master data quality: @{outputs('Run_quality_checks')?['body/result']?['exceptions']} exceptions, @{formatNumber(mul(outputs('Run_quality_checks')?['body/result']?['cleanRate'], 100), '0.0')}% clean - @{outputs('Run_quality_checks')?['body/result']?['runDate']}",
+              "emailMessage/Body": "@{replace(outputs('Run_quality_checks')?['body/result']?['summaryHtml'], '{{REPORT_URL}}', outputs('Report_link'))}",
+              "emailMessage/Attachments": [
+                {
+                  "Name": "@{outputs('Run_quality_checks')?['body/result']?['reportName']}.csv",
+                  "ContentBytes": "@{base64(outputs('Run_quality_checks')?['body/result']?['csv'])}"
+                }
+              ],
+              "emailMessage/Importance": "@{if(greater(outputs('Run_quality_checks')?['body/result']?['critical'], 0), 'High', 'Normal')}"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      }
+    },
+    "Catch_alert_on_failure": {
+      "runAfter": {
+        "Try": [
+          "Failed",
+          "TimedOut"
+        ]
+      },
+      "type": "OpenApiConnection",
+      "inputs": {
+        "host": {
+          "connectionName": "shared_office365",
+          "operationId": "SendEmailV2",
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+        },
+        "parameters": {
+          "emailMessage/To": "@outputs('Settings')?['GovernanceEmail']",
+          "emailMessage/Subject": "FAILED: weekly master data quality flow",
+          "emailMessage/Body": "<p>The weekly master data quality run failed.</p><p><a href=\"https://make.powerautomate.com/environments/@{workflow()?['tags']?['environmentName']}/flows/@{workflow()?['name']}/runs/@{workflow()?['run']?['name']}\">Open the failed run</a></p><pre>@{string(result('Try'))}</pre>",
+          "emailMessage/Importance": "High"
+        },
+        "authentication": "@parameters('$authentication')"
+      }
+    }
+  },
+  "outputs": {}
+}

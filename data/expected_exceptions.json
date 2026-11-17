@@ -1,0 +1,1181 @@
+{
+ "RunDate": "2026-11-17",
+ "Expected": [
+  {
+   "Entity": "Customer",
+   "Row": 195,
+   "RuleID": "MIS-001",
+   "Field": "CustomerName",
+   "RecordID": "C10151"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 176,
+   "RuleID": "MIS-001",
+   "Field": "CustomerName",
+   "RecordID": "C10152"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 162,
+   "RuleID": "MIS-001",
+   "Field": "Email",
+   "RecordID": "C10153"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 187,
+   "RuleID": "MIS-001",
+   "Field": "Email",
+   "RecordID": "C10154"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 160,
+   "RuleID": "MIS-001",
+   "Field": "TaxID",
+   "RecordID": "C10155"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 163,
+   "RuleID": "MIS-001",
+   "Field": "Country",
+   "RecordID": "C10156"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 177,
+   "RuleID": "MIS-001",
+   "Field": "City",
+   "RecordID": "C10157"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 177,
+   "RuleID": "MIS-001",
+   "Field": "PaymentTerms",
+   "RecordID": "C10157"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 180,
+   "RuleID": "MIS-001",
+   "Field": "Currency",
+   "RecordID": "C10158"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 188,
+   "RuleID": "MIS-001",
+   "Field": "Status",
+   "RecordID": "C10159"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 154,
+   "RuleID": "INC-001",
+   "Field": "Email",
+   "RecordID": "C10160"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 178,
+   "RuleID": "INC-001",
+   "Field": "Email",
+   "RecordID": "C10161"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 198,
+   "RuleID": "INC-001",
+   "Field": "Email",
+   "RecordID": "C10162"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 203,
+   "RuleID": "INC-001",
+   "Field": "Email",
+   "RecordID": "C10163"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 196,
+   "RuleID": "INC-001",
+   "Field": "Email",
+   "RecordID": "C10164"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 152,
+   "RuleID": "INC-002",
+   "Field": "Phone",
+   "RecordID": "C10165"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 200,
+   "RuleID": "INC-002",
+   "Field": "Phone",
+   "RecordID": "C10166"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 173,
+   "RuleID": "INC-002",
+   "Field": "Phone",
+   "RecordID": "C10167"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 190,
+   "RuleID": "INC-003",
+   "Field": "Country",
+   "RecordID": "C10168"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 166,
+   "RuleID": "INC-003",
+   "Field": "Country",
+   "RecordID": "C10169"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 197,
+   "RuleID": "INC-003",
+   "Field": "Country",
+   "RecordID": "C10170"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 171,
+   "RuleID": "INC-004",
+   "Field": "TaxID",
+   "RecordID": "C10171"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 186,
+   "RuleID": "INC-004",
+   "Field": "TaxID",
+   "RecordID": "C10172"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 182,
+   "RuleID": "INC-004",
+   "Field": "TaxID",
+   "RecordID": "C10173"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 199,
+   "RuleID": "INC-005",
+   "Field": "PostalCode",
+   "RecordID": "C10174"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 165,
+   "RuleID": "INC-005",
+   "Field": "PostalCode",
+   "RecordID": "C10175"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 157,
+   "RuleID": "INC-005",
+   "Field": "PostalCode",
+   "RecordID": "C10176"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 193,
+   "RuleID": "INC-006",
+   "Field": "Currency",
+   "RecordID": "C10177"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 170,
+   "RuleID": "INC-006",
+   "Field": "Currency",
+   "RecordID": "C10178"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 181,
+   "RuleID": "INC-007",
+   "Field": "PaymentTerms",
+   "RecordID": "C10179"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 191,
+   "RuleID": "INC-007",
+   "Field": "PaymentTerms",
+   "RecordID": "C10180"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 183,
+   "RuleID": "INC-008",
+   "Field": "CustomerName",
+   "RecordID": "C10181"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 179,
+   "RuleID": "INC-008",
+   "Field": "CustomerName",
+   "RecordID": "C10182"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 202,
+   "RuleID": "INC-008",
+   "Field": "CustomerName",
+   "RecordID": "C10183"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 161,
+   "RuleID": "INC-009",
+   "Field": "CreatedDate",
+   "RecordID": "C10184"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 155,
+   "RuleID": "INC-009",
+   "Field": "CreatedDate",
+   "RecordID": "C10185"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 201,
+   "RuleID": "INC-010",
+   "Field": "Status",
+   "RecordID": "C10186"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 174,
+   "RuleID": "INC-015",
+   "Field": "CreditLimit",
+   "RecordID": "C10187"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 151,
+   "RuleID": "INC-015",
+   "Field": "CreditLimit",
+   "RecordID": "C10188"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 164,
+   "RuleID": "INC-001",
+   "Field": "Email",
+   "RecordID": "C10189"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 164,
+   "RuleID": "MIS-001",
+   "Field": "TaxID",
+   "RecordID": "C10189"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 164,
+   "RuleID": "INC-005",
+   "Field": "PostalCode",
+   "RecordID": "C10189"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 153,
+   "RuleID": "INC-002",
+   "Field": "Phone",
+   "RecordID": "C10190"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 153,
+   "RuleID": "INC-006",
+   "Field": "Currency",
+   "RecordID": "C10190"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 153,
+   "RuleID": "INC-008",
+   "Field": "CustomerName",
+   "RecordID": "C10190"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 185,
+   "RuleID": "DUP-002",
+   "Field": "CustomerName",
+   "RecordID": "C10191"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 185,
+   "RuleID": "DUP-003",
+   "Field": "TaxID",
+   "RecordID": "C10191"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 185,
+   "RuleID": "DUP-004",
+   "Field": "Email",
+   "RecordID": "C10191"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 175,
+   "RuleID": "DUP-002",
+   "Field": "CustomerName",
+   "RecordID": "C10192"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 175,
+   "RuleID": "DUP-003",
+   "Field": "TaxID",
+   "RecordID": "C10192"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 175,
+   "RuleID": "DUP-004",
+   "Field": "Email",
+   "RecordID": "C10192"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 156,
+   "RuleID": "DUP-002",
+   "Field": "CustomerName",
+   "RecordID": "C10193"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 156,
+   "RuleID": "DUP-003",
+   "Field": "TaxID",
+   "RecordID": "C10193"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 156,
+   "RuleID": "DUP-004",
+   "Field": "Email",
+   "RecordID": "C10193"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 168,
+   "RuleID": "DUP-001",
+   "Field": "CustomerID",
+   "RecordID": "C10112"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 189,
+   "RuleID": "DUP-001",
+   "Field": "CustomerID",
+   "RecordID": "C10143"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 167,
+   "RuleID": "DUP-002",
+   "Field": "CustomerName",
+   "RecordID": "C10196"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 172,
+   "RuleID": "DUP-002",
+   "Field": "CustomerName",
+   "RecordID": "C10197"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 159,
+   "RuleID": "DUP-005",
+   "Field": "CustomerName",
+   "RecordID": "C10198"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 169,
+   "RuleID": "DUP-005",
+   "Field": "CustomerName",
+   "RecordID": "C10199"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 184,
+   "RuleID": "DUP-005",
+   "Field": "CustomerName",
+   "RecordID": "C10200"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 192,
+   "RuleID": "DUP-002",
+   "Field": "CustomerName",
+   "RecordID": "C10201"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 194,
+   "RuleID": "DUP-003",
+   "Field": "TaxID",
+   "RecordID": "C10202"
+  },
+  {
+   "Entity": "Customer",
+   "Row": 158,
+   "RuleID": "DUP-004",
+   "Field": "Email",
+   "RecordID": "C10203"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 127,
+   "RuleID": "MIS-001",
+   "Field": "VendorName",
+   "RecordID": "V20096"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 139,
+   "RuleID": "MIS-001",
+   "Field": "VendorName",
+   "RecordID": "V20097"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 110,
+   "RuleID": "MIS-001",
+   "Field": "Email",
+   "RecordID": "V20098"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 150,
+   "RuleID": "MIS-001",
+   "Field": "Email",
+   "RecordID": "V20099"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 142,
+   "RuleID": "MIS-001",
+   "Field": "TaxID",
+   "RecordID": "V20100"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 138,
+   "RuleID": "MIS-001",
+   "Field": "Country",
+   "RecordID": "V20101"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 115,
+   "RuleID": "MIS-001",
+   "Field": "City",
+   "RecordID": "V20102"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 115,
+   "RuleID": "MIS-001",
+   "Field": "PaymentTerms",
+   "RecordID": "V20102"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 112,
+   "RuleID": "MIS-001",
+   "Field": "Currency",
+   "RecordID": "V20103"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 129,
+   "RuleID": "MIS-001",
+   "Field": "Status",
+   "RecordID": "V20104"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 111,
+   "RuleID": "INC-001",
+   "Field": "Email",
+   "RecordID": "V20105"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 148,
+   "RuleID": "INC-001",
+   "Field": "Email",
+   "RecordID": "V20106"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 130,
+   "RuleID": "INC-001",
+   "Field": "Email",
+   "RecordID": "V20107"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 132,
+   "RuleID": "INC-001",
+   "Field": "Email",
+   "RecordID": "V20108"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 128,
+   "RuleID": "INC-001",
+   "Field": "Email",
+   "RecordID": "V20109"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 135,
+   "RuleID": "INC-002",
+   "Field": "Phone",
+   "RecordID": "V20110"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 100,
+   "RuleID": "INC-002",
+   "Field": "Phone",
+   "RecordID": "V20111"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 120,
+   "RuleID": "INC-002",
+   "Field": "Phone",
+   "RecordID": "V20112"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 118,
+   "RuleID": "INC-003",
+   "Field": "Country",
+   "RecordID": "V20113"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 147,
+   "RuleID": "INC-003",
+   "Field": "Country",
+   "RecordID": "V20114"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 106,
+   "RuleID": "INC-003",
+   "Field": "Country",
+   "RecordID": "V20115"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 125,
+   "RuleID": "INC-004",
+   "Field": "TaxID",
+   "RecordID": "V20116"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 146,
+   "RuleID": "INC-004",
+   "Field": "TaxID",
+   "RecordID": "V20117"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 124,
+   "RuleID": "INC-004",
+   "Field": "TaxID",
+   "RecordID": "V20118"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 98,
+   "RuleID": "INC-005",
+   "Field": "PostalCode",
+   "RecordID": "V20119"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 105,
+   "RuleID": "INC-005",
+   "Field": "PostalCode",
+   "RecordID": "V20120"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 149,
+   "RuleID": "INC-005",
+   "Field": "PostalCode",
+   "RecordID": "V20121"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 122,
+   "RuleID": "INC-006",
+   "Field": "Currency",
+   "RecordID": "V20122"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 97,
+   "RuleID": "INC-006",
+   "Field": "Currency",
+   "RecordID": "V20123"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 103,
+   "RuleID": "INC-007",
+   "Field": "PaymentTerms",
+   "RecordID": "V20124"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 131,
+   "RuleID": "INC-007",
+   "Field": "PaymentTerms",
+   "RecordID": "V20125"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 140,
+   "RuleID": "INC-008",
+   "Field": "VendorName",
+   "RecordID": "V20126"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 108,
+   "RuleID": "INC-008",
+   "Field": "VendorName",
+   "RecordID": "V20127"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 113,
+   "RuleID": "INC-008",
+   "Field": "VendorName",
+   "RecordID": "V20128"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 101,
+   "RuleID": "INC-009",
+   "Field": "CreatedDate",
+   "RecordID": "V20129"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 144,
+   "RuleID": "INC-009",
+   "Field": "CreatedDate",
+   "RecordID": "V20130"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 123,
+   "RuleID": "INC-010",
+   "Field": "Status",
+   "RecordID": "V20131"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 107,
+   "RuleID": "INC-016",
+   "Field": "BankIBAN",
+   "RecordID": "V20132"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 119,
+   "RuleID": "INC-016",
+   "Field": "BankIBAN",
+   "RecordID": "V20133"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 141,
+   "RuleID": "INC-016",
+   "Field": "BankIBAN",
+   "RecordID": "V20134"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 96,
+   "RuleID": "INC-001",
+   "Field": "Email",
+   "RecordID": "V20135"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 96,
+   "RuleID": "MIS-001",
+   "Field": "TaxID",
+   "RecordID": "V20135"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 96,
+   "RuleID": "INC-005",
+   "Field": "PostalCode",
+   "RecordID": "V20135"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 143,
+   "RuleID": "INC-002",
+   "Field": "Phone",
+   "RecordID": "V20136"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 143,
+   "RuleID": "INC-006",
+   "Field": "Currency",
+   "RecordID": "V20136"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 143,
+   "RuleID": "INC-008",
+   "Field": "VendorName",
+   "RecordID": "V20136"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 109,
+   "RuleID": "DUP-002",
+   "Field": "VendorName",
+   "RecordID": "V20137"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 109,
+   "RuleID": "DUP-003",
+   "Field": "TaxID",
+   "RecordID": "V20137"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 109,
+   "RuleID": "DUP-004",
+   "Field": "Email",
+   "RecordID": "V20137"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 109,
+   "RuleID": "DUP-006",
+   "Field": "BankIBAN",
+   "RecordID": "V20137"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 104,
+   "RuleID": "DUP-002",
+   "Field": "VendorName",
+   "RecordID": "V20138"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 104,
+   "RuleID": "DUP-003",
+   "Field": "TaxID",
+   "RecordID": "V20138"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 104,
+   "RuleID": "DUP-004",
+   "Field": "Email",
+   "RecordID": "V20138"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 104,
+   "RuleID": "DUP-006",
+   "Field": "BankIBAN",
+   "RecordID": "V20138"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 134,
+   "RuleID": "DUP-002",
+   "Field": "VendorName",
+   "RecordID": "V20139"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 134,
+   "RuleID": "DUP-003",
+   "Field": "TaxID",
+   "RecordID": "V20139"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 134,
+   "RuleID": "DUP-004",
+   "Field": "Email",
+   "RecordID": "V20139"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 134,
+   "RuleID": "DUP-006",
+   "Field": "BankIBAN",
+   "RecordID": "V20139"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 114,
+   "RuleID": "DUP-001",
+   "Field": "VendorID",
+   "RecordID": "V20034"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 116,
+   "RuleID": "DUP-001",
+   "Field": "VendorID",
+   "RecordID": "V20078"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 136,
+   "RuleID": "DUP-002",
+   "Field": "VendorName",
+   "RecordID": "V20142"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 99,
+   "RuleID": "DUP-002",
+   "Field": "VendorName",
+   "RecordID": "V20143"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 133,
+   "RuleID": "DUP-005",
+   "Field": "VendorName",
+   "RecordID": "V20144"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 121,
+   "RuleID": "DUP-005",
+   "Field": "VendorName",
+   "RecordID": "V20145"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 145,
+   "RuleID": "DUP-005",
+   "Field": "VendorName",
+   "RecordID": "V20146"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 126,
+   "RuleID": "DUP-002",
+   "Field": "VendorName",
+   "RecordID": "V20147"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 102,
+   "RuleID": "DUP-003",
+   "Field": "TaxID",
+   "RecordID": "V20148"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 151,
+   "RuleID": "DUP-004",
+   "Field": "Email",
+   "RecordID": "V20149"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 137,
+   "RuleID": "DUP-006",
+   "Field": "BankIBAN",
+   "RecordID": "V20150"
+  },
+  {
+   "Entity": "Vendor",
+   "Row": 117,
+   "RuleID": "DUP-006",
+   "Field": "BankIBAN",
+   "RecordID": "V20151"
+  },
+  {
+   "Entity": "Material",
+   "Row": 130,
+   "RuleID": "MIS-001",
+   "Field": "Description",
+   "RecordID": "M30111"
+  },
+  {
+   "Entity": "Material",
+   "Row": 117,
+   "RuleID": "MIS-001",
+   "Field": "MaterialGroup",
+   "RecordID": "M30112"
+  },
+  {
+   "Entity": "Material",
+   "Row": 122,
+   "RuleID": "MIS-001",
+   "Field": "StandardPrice",
+   "RecordID": "M30113"
+  },
+  {
+   "Entity": "Material",
+   "Row": 127,
+   "RuleID": "MIS-001",
+   "Field": "Plant",
+   "RecordID": "M30114"
+  },
+  {
+   "Entity": "Material",
+   "Row": 118,
+   "RuleID": "MIS-001",
+   "Field": "BaseUoM",
+   "RecordID": "M30115"
+  },
+  {
+   "Entity": "Material",
+   "Row": 129,
+   "RuleID": "MIS-002",
+   "Field": "PreferredVendorID",
+   "RecordID": "M30116"
+  },
+  {
+   "Entity": "Material",
+   "Row": 115,
+   "RuleID": "MIS-002",
+   "Field": "PreferredVendorID",
+   "RecordID": "M30117"
+  },
+  {
+   "Entity": "Material",
+   "Row": 144,
+   "RuleID": "INC-011",
+   "Field": "BaseUoM",
+   "RecordID": "M30118"
+  },
+  {
+   "Entity": "Material",
+   "Row": 141,
+   "RuleID": "INC-011",
+   "Field": "BaseUoM",
+   "RecordID": "M30119"
+  },
+  {
+   "Entity": "Material",
+   "Row": 143,
+   "RuleID": "INC-011",
+   "Field": "BaseUoM",
+   "RecordID": "M30120"
+  },
+  {
+   "Entity": "Material",
+   "Row": 113,
+   "RuleID": "INC-012",
+   "Field": "MaterialType",
+   "RecordID": "M30121"
+  },
+  {
+   "Entity": "Material",
+   "Row": 139,
+   "RuleID": "INC-012",
+   "Field": "MaterialType",
+   "RecordID": "M30122"
+  },
+  {
+   "Entity": "Material",
+   "Row": 142,
+   "RuleID": "INC-013",
+   "Field": "PreferredVendorID",
+   "RecordID": "M30123"
+  },
+  {
+   "Entity": "Material",
+   "Row": 125,
+   "RuleID": "INC-013",
+   "Field": "PreferredVendorID",
+   "RecordID": "M30124"
+  },
+  {
+   "Entity": "Material",
+   "Row": 134,
+   "RuleID": "INC-013",
+   "Field": "PreferredVendorID",
+   "RecordID": "M30125"
+  },
+  {
+   "Entity": "Material",
+   "Row": 138,
+   "RuleID": "INC-014",
+   "Field": "PreferredVendorID",
+   "RecordID": "M30126"
+  },
+  {
+   "Entity": "Material",
+   "Row": 124,
+   "RuleID": "INC-014",
+   "Field": "PreferredVendorID",
+   "RecordID": "M30127"
+  },
+  {
+   "Entity": "Material",
+   "Row": 136,
+   "RuleID": "INC-015",
+   "Field": "StandardPrice",
+   "RecordID": "M30128"
+  },
+  {
+   "Entity": "Material",
+   "Row": 137,
+   "RuleID": "INC-015",
+   "Field": "StandardPrice",
+   "RecordID": "M30129"
+  },
+  {
+   "Entity": "Material",
+   "Row": 112,
+   "RuleID": "INC-015",
+   "Field": "StandardPrice",
+   "RecordID": "M30130"
+  },
+  {
+   "Entity": "Material",
+   "Row": 121,
+   "RuleID": "INC-015",
+   "Field": "GrossWeightKg",
+   "RecordID": "M30131"
+  },
+  {
+   "Entity": "Material",
+   "Row": 135,
+   "RuleID": "INC-017",
+   "Field": "Plant",
+   "RecordID": "M30132"
+  },
+  {
+   "Entity": "Material",
+   "Row": 114,
+   "RuleID": "INC-017",
+   "Field": "Plant",
+   "RecordID": "M30133"
+  },
+  {
+   "Entity": "Material",
+   "Row": 132,
+   "RuleID": "INC-006",
+   "Field": "Currency",
+   "RecordID": "M30134"
+  },
+  {
+   "Entity": "Material",
+   "Row": 131,
+   "RuleID": "INC-008",
+   "Field": "Description",
+   "RecordID": "M30135"
+  },
+  {
+   "Entity": "Material",
+   "Row": 126,
+   "RuleID": "INC-008",
+   "Field": "Description",
+   "RecordID": "M30136"
+  },
+  {
+   "Entity": "Material",
+   "Row": 140,
+   "RuleID": "INC-009",
+   "Field": "CreatedDate",
+   "RecordID": "M30137"
+  },
+  {
+   "Entity": "Material",
+   "Row": 123,
+   "RuleID": "INC-010",
+   "Field": "Status",
+   "RecordID": "M30138"
+  },
+  {
+   "Entity": "Material",
+   "Row": 120,
+   "RuleID": "DUP-002",
+   "Field": "Description",
+   "RecordID": "M30139"
+  },
+  {
+   "Entity": "Material",
+   "Row": 128,
+   "RuleID": "DUP-002",
+   "Field": "Description",
+   "RecordID": "M30140"
+  },
+  {
+   "Entity": "Material",
+   "Row": 116,
+   "RuleID": "DUP-001",
+   "Field": "MaterialID",
+   "RecordID": "M30084"
+  },
+  {
+   "Entity": "Material",
+   "Row": 119,
+   "RuleID": "DUP-005",
+   "Field": "Description",
+   "RecordID": "M30142"
+  },
+  {
+   "Entity": "Material",
+   "Row": 111,
+   "RuleID": "DUP-005",
+   "Field": "Description",
+   "RecordID": "M30143"
+  },
+  {
+   "Entity": "Material",
+   "Row": 133,
+   "RuleID": "DUP-005",
+   "Field": "Description",
+   "RecordID": "M30144"
+  }
+ ]
+}

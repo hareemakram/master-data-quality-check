@@ -1,0 +1,558 @@
+// ============================================================================
+// Master Data Quality rules engine
+// ----------------------------------------------------------------------------
+// One implementation, three consumers:
+//   * the Office Script that Power Automate runs every week (automation/)
+//   * the interactive web dashboard (web/)
+//   * the automated test-suite (tests/)
+// The Power Query (M) queries in powerquery/ implement the identical rule
+// specification so the Excel refresh and the automated run agree.
+//
+// Written in Office-Scripts-compatible TypeScript: no `any`, no imports.
+// ============================================================================
+
+type Cell = string | number | boolean | null | undefined;
+interface DQRow { [field: string]: Cell; }
+
+interface DQRule {
+  RuleID: string; Category: string; RuleName: string; Severity: string;
+  Enabled: Cell; Threshold: Cell; Description?: Cell; AppliesTo?: Cell;
+}
+interface DQInput {
+  customers: DQRow[]; vendors: DQRow[]; materials: DQRow[];
+  countries: DQRow[]; lists: DQRow[]; rules: DQRule[];
+  requiredFields: DQRow[]; owners: DQRow[];
+}
+interface DQException {
+  ExceptionID: string; RunDate: string; Entity: string; SourceRow: number;
+  RecordID: string; RecordName: string; Region: string; RuleID: string;
+  Category: string; RuleName: string; Field: string; Value: string;
+  Details: string; Severity: string; SeverityRank: number;
+  RelatedRecordID: string; OwnerName: string; OwnerEmail: string; Status: string;
+}
+interface DQEntitySummary {
+  Entity: string; Records: number; RecordsWithExceptions: number;
+  CleanRecords: number; CleanRate: number; Exceptions: number;
+  Critical: number; High: number; Medium: number; Low: number;
+}
+interface DQResult {
+  runDate: string; exceptions: DQException[]; entities: DQEntitySummary[];
+  totals: { records: number; exceptions: number; recordsWithExceptions: number; cleanRate: number;
+            critical: number; high: number; medium: number; low: number; };
+}
+
+const DQ_SEVERITY_RANK: { [s: string]: number } = { Critical: 4, High: 3, Medium: 2, Low: 1 };
+const DQ_LEGAL_TOKENS: string[] = ["inc", "incorporated", "ltd", "limited", "llc", "gmbh", "ag", "sa", "sarl",
+  "bv", "nv", "plc", "co", "corp", "corporation", "company", "pty", "pte", "pvt", "srl", "spa", "sl", "kk",
+  "ltda", "de", "cv", "the"];
+
+const DQ_ENTITIES: { entity: string; prefix: string; idField: string; nameField: string; }[] = [
+  { entity: "Customer", prefix: "CUS", idField: "CustomerID", nameField: "CustomerName" },
+  { entity: "Vendor", prefix: "VEN", idField: "VendorID", nameField: "VendorName" },
+  { entity: "Material", prefix: "MAT", idField: "MaterialID", nameField: "Description" },
+];
+
+// ---------------------------------------------------------------- primitives
+function dqIsBlank(v: Cell): boolean {
+  return v === null || v === undefined || (typeof v === "string" && v.trim() === "");
+}
+function dqText(v: Cell): string {
+  if (v === null || v === undefined) return "";
+  if (typeof v === "boolean") return v ? "TRUE" : "FALSE";
+  return String(v);
+}
+function dqTrim(v: Cell): string { return dqText(v).trim(); }
+function dqHas(obj: object, key: string): boolean { return Object.prototype.hasOwnProperty.call(obj, key); }
+function dqPad(n: number, w: number): string { let s = String(n); while (s.length < w) s = "0" + s; return s; }
+
+/** Lower-case, & -> and, non [a-z0-9] -> space, drop legal-form tokens (partners only). */
+function dqNormalizeName(v: Cell, dropLegal: boolean): string {
+  const s = dqText(v).toLowerCase().split("&").join(" and ").replace(/[^a-z0-9]/g, " ");
+  return s.split(" ").filter(t => t !== "" && !(dropLegal && DQ_LEGAL_TOKENS.indexOf(t) >= 0)).join(" ");
+}
+
+/** Sørensen–Dice coefficient on character bigrams (spaces removed, multiset intersection). */
+function dqDice(a: string, b: string): number {
+  const x = a.split(" ").join(""), y = b.split(" ").join("");
+  if (x.length < 2 || y.length < 2) return x === y ? 1 : 0;
+  const counts: { [g: string]: number } = {};
+  for (let i = 0; i < x.length - 1; i++) { const g = x.substr(i, 2); counts[g] = (dqHas(counts, g) ? counts[g] : 0) + 1; }
+  let inter = 0;
+  for (let i = 0; i < y.length - 1; i++) {
+    const g = y.substr(i, 2);
+    if (dqHas(counts, g) && counts[g] > 0) { counts[g]--; inter++; }
+  }
+  return (2 * inter) / (x.length - 1 + y.length - 1);
+}
+
+/** Mask match: '#' digit, '@' letter A-Z, '?' letter or digit, anything else literal. '|' separates alternatives. */
+function dqMatchesPattern(value: string, pattern: string): boolean {
+  const v = value.trim().toUpperCase();
+  return pattern.split("|").some(p => {
+    if (p.length !== v.length) return false;
+    for (let i = 0; i < p.length; i++) {
+      const m = p.charAt(i), c = v.charAt(i);
+      const isD = c >= "0" && c <= "9", isL = c >= "A" && c <= "Z";
+      if (m === "#") { if (!isD) return false; }
+      else if (m === "@") { if (!isL) return false; }
+      else if (m === "?") { if (!isD && !isL) return false; }
+      else if (m !== c) return false;
+    }
+    return true;
+  });
+}
+
+function dqValidEmail(v: string): boolean {
+  const s = v.trim();
+  if (/\s/.test(s)) return false;
+  const parts = s.split("@");
+  if (parts.length !== 2) return false;
+  const local = parts[0], domain = parts[1];
+  if (local === "" || domain === "") return false;
+  if (!/^[A-Za-z0-9._%+'-]+$/.test(local) || !/^[A-Za-z0-9.-]+$/.test(domain)) return false;
+  if (local.charAt(0) === "." || local.charAt(local.length - 1) === "." || local.indexOf("..") >= 0) return false;
+  if (domain.indexOf(".") < 0 || domain.charAt(0) === "." || domain.charAt(domain.length - 1) === "." ||
+      domain.indexOf("..") >= 0) return false;
+  const tld = domain.substr(domain.lastIndexOf(".") + 1);
+  return tld.length >= 2 && /^[A-Za-z]+$/.test(tld);
+}
+
+/** Returns null when valid, otherwise a reason. */
+function dqPhoneProblem(v: string, phoneCode: string | null): string | null {
+  const s = v.trim().replace(/[ \-().]/g, "");
+  if (s.charAt(0) !== "+") return "must start with + and the country calling code";
+  const digits = s.substr(1);
+  if (!/^[0-9]+$/.test(digits)) return "contains characters other than digits";
+  if (digits.length < 8 || digits.length > 15) return "must contain 8-15 digits";
+  if (phoneCode !== null && digits.indexOf(phoneCode) !== 0) return "calling code does not match country (+" + phoneCode + ")";
+  return null;
+}
+
+function dqValidIban(v: string, ibanLengths: { [cc: string]: number }): boolean {
+  const s = v.toUpperCase().split(" ").join("");
+  if (!/^[A-Z0-9]+$/.test(s) || s.length < 5) return false;
+  const cc = s.substr(0, 2);
+  if (!dqHas(ibanLengths, cc) || s.length !== ibanLengths[cc]) return false;
+  const rearranged = s.substr(4) + s.substr(0, 4);
+  let rem = 0;
+  for (let i = 0; i < rearranged.length; i++) {
+    const c = rearranged.charAt(i);
+    const digits = c >= "A" && c <= "Z" ? String(c.charCodeAt(0) - 55) : c;
+    for (let j = 0; j < digits.length; j++) rem = (rem * 10 + Number(digits.charAt(j))) % 97;
+  }
+  return rem === 1;
+}
+
+/** Parses a number from a number cell or numeric text; NaN when not numeric. */
+function dqNumber(v: Cell): number {
+  if (typeof v === "number") return v;
+  if (typeof v === "string" && /^\s*-?[0-9]+(\.[0-9]+)?\s*$/.test(v)) return Number(v.trim());
+  return NaN;
+}
+
+/** Returns yyyy-mm-dd or null when the value is not a valid date. Excel serials and ISO text accepted. */
+function dqDate(v: Cell): string | null {
+  if (typeof v === "number") {
+    if (v < 1 || v > 2958465) return null;
+    const d = new Date(Date.UTC(1899, 11, 30) + Math.floor(v) * 86400000);
+    return d.toISOString().substr(0, 10);
+  }
+  if (typeof v === "string") {
+    const m = /^\s*(\d{4})-(\d{2})-(\d{2})(?:[T ]\d{2}:\d{2}(?::\d{2})?)?\s*$/.exec(v);
+    if (!m) return null;
+    const y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+    const dt = new Date(Date.UTC(y, mo - 1, d));
+    if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return null;
+    return m[1] + "-" + m[2] + "-" + m[3];
+  }
+  return null;
+}
+
+function dqDisplay(v: Cell): string {
+  if (typeof v === "number") return String(v);
+  return dqText(v);
+}
+
+// --------------------------------------------------------------------- engine
+function runQualityChecks(input: DQInput, runDate: string): DQResult {
+  const rules: { [id: string]: DQRule } = {};
+  input.rules.forEach(r => { rules[dqTrim(r.RuleID)] = r; });
+  const enabled = (id: string): boolean => {
+    if (!dqHas(rules, id)) return false;
+    const r = rules[id];
+    const e = r.Enabled;
+    return !(e === false || e === 0 || (typeof e === "string" && /^(false|no|n|0)$/i.test(e.trim())));
+  };
+  const threshold = (id: string, dflt: number): number => {
+    const n = dqHas(rules, id) ? dqNumber(rules[id].Threshold) : NaN;
+    return isNaN(n) ? dflt : n;
+  };
+
+  const lists: { [name: string]: string[] } = {};
+  input.lists.forEach(l => {
+    const n = dqTrim(l.ListName);
+    (lists[n] = dqHas(lists, n) ? lists[n] : []).push(dqTrim(l.Value));
+  });
+  const inList = (list: string, v: Cell): boolean => (dqHas(lists, list) ? lists[list] : []).indexOf(dqTrim(v)) >= 0;
+
+  const countries: { [cc: string]: DQRow } = {};
+  const ibanLengths: { [cc: string]: number } = {};
+  input.countries.forEach(c => {
+    const cc = dqTrim(c.CountryCode);
+    countries[cc] = c;
+    const n = dqNumber(c.IBANLength);
+    if (!isNaN(n) && n > 0) ibanLengths[cc] = n;
+  });
+
+  const owner = (entity: string, region: string): DQRow | null => {
+    const tries: string[][] = [[entity, region], [entity, "*"], ["*", "*"]];
+    for (let t = 0; t < tries.length; t++) {
+      const hit = input.owners.filter(o => dqTrim(o.Entity) === tries[t][0] && dqTrim(o.Region) === tries[t][1]);
+      if (hit.length > 0) return hit[0];
+    }
+    return null;
+  };
+
+  const required: { [entity: string]: DQRow[] } = {};
+  input.requiredFields.forEach(f => {
+    const e = dqTrim(f.Entity);
+    (required[e] = dqHas(required, e) ? required[e] : []).push(f);
+  });
+
+  // vendor index for referential checks: first occurrence wins
+  const vendorStatus: { [id: string]: string } = {};
+  input.vendors.forEach(v => {
+    const id = dqTrim(v.VendorID);
+    if (id !== "" && !dqHas(vendorStatus, id)) vendorStatus[id] = dqTrim(v.Status);
+  });
+
+  const out: DQException[] = [];
+  const dataByEntity: { [e: string]: DQRow[] } = {
+    Customer: input.customers, Vendor: input.vendors, Material: input.materials,
+  };
+
+  DQ_ENTITIES.forEach(meta => {
+    const rows = dataByEntity[meta.entity];
+    const isPartner = meta.entity !== "Material";
+    const regionOf = (r: DQRow): string => {
+      if (!isPartner) return "Global";
+      const cc = dqTrim(r.Country).toUpperCase();
+      return dqHas(countries, cc) ? dqTrim(countries[cc].Region) : "Unassigned";
+    };
+
+    const emit = (idx: number, ruleId: string, field: string, details: string, severityOverride?: string,
+                  related?: string): void => {
+      if (!enabled(ruleId)) return;
+      const r = rows[idx], rule = rules[ruleId];
+      const severity = severityOverride || dqTrim(rule.Severity);
+      const region = regionOf(r);
+      const o = owner(meta.entity, region);
+      out.push({
+        ExceptionID: meta.prefix + "-" + dqPad(idx + 1, 4) + "-" + ruleId + "-" + field,
+        RunDate: runDate, Entity: meta.entity, SourceRow: idx + 1,
+        RecordID: dqTrim(r[meta.idField]), RecordName: dqTrim(r[meta.nameField]), Region: region,
+        RuleID: ruleId, Category: dqTrim(rule.Category), RuleName: dqTrim(rule.RuleName), Field: field,
+        Value: field === "CreatedDate" && typeof r[field] === "number" ? (dqDate(r[field]) || dqDisplay(r[field])) : dqDisplay(r[field]),
+        Details: details, Severity: severity,
+        SeverityRank: DQ_SEVERITY_RANK[severity] || 0, RelatedRecordID: related || "",
+        OwnerName: o ? dqTrim(o.OwnerName) : "", OwnerEmail: o ? dqTrim(o.OwnerEmail) : "", Status: "Open",
+      });
+    };
+
+    // ---- duplicate groups (flag every occurrence after the first) -------
+    const groupDup = (ruleId: string, field: string, keyOf: (r: DQRow) => string, label: string): void => {
+      const first: { [k: string]: number } = {};
+      rows.forEach((r, i) => {
+        const k = keyOf(r);
+        if (k === "") return;
+        if (dqHas(first, k)) {
+          const f = first[k];
+          emit(i, ruleId, field, label + " as " + dqTrim(rows[f][meta.idField]) + " (row " + (f + 1) + ")",
+               undefined, dqTrim(rows[f][meta.idField]));
+        } else first[k] = i;
+      });
+    };
+    groupDup("DUP-001", meta.idField, r => dqTrim(r[meta.idField]), "Same record ID");
+    const normKey = (r: DQRow): string => dqNormalizeName(r[meta.nameField], isPartner);
+    const blockOf = (r: DQRow): string => isPartner ? dqTrim(r.Country).toUpperCase()
+                                                   : dqTrim(r.MaterialType).toUpperCase();
+    groupDup("DUP-002", meta.nameField, r => {
+      const n = normKey(r);
+      if (n === "") return "";
+      return isPartner ? n + "|" + blockOf(r) : n + "|" + blockOf(r) + "|" + dqTrim(r.BaseUoM).toUpperCase();
+    }, isPartner ? "Same normalised name and country" : "Same normalised description, type and UoM");
+    if (isPartner) {
+      groupDup("DUP-003", "TaxID", r => dqText(r.TaxID).toUpperCase().replace(/[ \-./]/g, ""), "Same tax ID");
+      groupDup("DUP-004", "Email", r => dqTrim(r.Email).toLowerCase(), "Same email address");
+    }
+    if (meta.entity === "Vendor") {
+      groupDup("DUP-006", "BankIBAN", r => dqText(r.BankIBAN).toUpperCase().split(" ").join(""), "Same bank account");
+    }
+
+    // ---- fuzzy duplicates -------------------------------------------------
+    if (enabled("DUP-005")) {
+      const th = threshold("DUP-005", 0.85);
+      const norms = rows.map(normKey), blocks = rows.map(blockOf);
+      for (let j = 0; j < rows.length; j++) {
+        if (norms[j] === "") continue;
+        let best = -1, bestScore = 0;
+        for (let i = 0; i < j; i++) {
+          if (blocks[i] !== blocks[j] || norms[i] === "" || norms[i] === norms[j]) continue;
+          const sc = dqDice(norms[i], norms[j]);
+          if (sc > bestScore) { bestScore = sc; best = i; }
+        }
+        if (best >= 0 && bestScore >= th) {
+          const rid = dqTrim(rows[best][meta.idField]);
+          emit(j, "DUP-005", meta.nameField, "Similar to " + rid + " '" + dqTrim(rows[best][meta.nameField]) +
+               "' (similarity " + bestScore.toFixed(2) + ")", undefined, rid);
+        }
+      }
+    }
+
+    // ---- per-row checks ---------------------------------------------------
+    rows.forEach((r, i) => {
+      (dqHas(required, meta.entity) ? required[meta.entity] : []).forEach(f => {
+        const field = dqTrim(f.Field);
+        if (dqIsBlank(r[field])) emit(i, "MIS-001", field, field + " is required but blank", dqTrim(f.Severity) || undefined);
+      });
+
+      const nm = r[meta.nameField];
+      if (!dqIsBlank(nm)) {
+        const s = dqText(nm), probs: string[] = [];
+        if (s !== s.trim()) probs.push("leading/trailing spaces");
+        if (s.indexOf("  ") >= 0) probs.push("repeated spaces");
+        if (s === s.toLowerCase() && s !== s.toUpperCase()) probs.push("all lower-case");
+        if (probs.length > 0) emit(i, "INC-008", meta.nameField, "Name has " + probs.join(", "));
+      }
+      if (!dqIsBlank(r.Currency) && !inList("Currency", r.Currency))
+        emit(i, "INC-006", "Currency", "'" + dqTrim(r.Currency) + "' is not an approved currency code");
+      if (!dqIsBlank(r.Status) && !inList("Status", r.Status))
+        emit(i, "INC-010", "Status", "'" + dqTrim(r.Status) + "' is not an approved status");
+      if (!dqIsBlank(r.CreatedDate)) {
+        const d = dqDate(r.CreatedDate);
+        if (d === null) emit(i, "INC-009", "CreatedDate", "Not a valid date (expected yyyy-mm-dd)");
+        else if (d > runDate) emit(i, "INC-009", "CreatedDate", "Date " + d + " is after the run date " + runDate);
+      }
+
+      if (isPartner) {
+        const ccRaw = dqTrim(r.Country);
+        const c = dqHas(countries, ccRaw) ? countries[ccRaw] : null;
+        if (ccRaw !== "" && !c) emit(i, "INC-003", "Country", "'" + ccRaw + "' is not a valid ISO 3166 alpha-2 code");
+        if (!dqIsBlank(r.Email) && !dqValidEmail(dqText(r.Email)))
+          emit(i, "INC-001", "Email", "Email address is not in a valid format");
+        if (!dqIsBlank(r.Phone)) {
+          const p = dqPhoneProblem(dqText(r.Phone), c ? dqTrim(c.PhoneCode) : null);
+          if (p !== null) emit(i, "INC-002", "Phone", "Phone " + p);
+        }
+        if (c && !dqIsBlank(r.TaxID) && !dqMatchesPattern(dqText(r.TaxID), dqText(c.TaxIDPattern)))
+          emit(i, "INC-004", "TaxID", "Does not match " + ccRaw + " pattern " + dqText(c.TaxIDPattern));
+        if (c && !dqIsBlank(r.PostalCode) && !dqIsBlank(c.PostalPattern) &&
+            !dqMatchesPattern(dqText(r.PostalCode), dqText(c.PostalPattern)))
+          emit(i, "INC-005", "PostalCode", "Does not match " + ccRaw + " pattern " + dqText(c.PostalPattern));
+        if (!dqIsBlank(r.PaymentTerms) && !inList("PaymentTerms", r.PaymentTerms))
+          emit(i, "INC-007", "PaymentTerms", "'" + dqTrim(r.PaymentTerms) + "' is not an approved payment term");
+      }
+      if (meta.entity === "Customer" && !dqIsBlank(r.CreditLimit)) {
+        const n = dqNumber(r.CreditLimit);
+        if (isNaN(n)) emit(i, "INC-015", "CreditLimit", "Credit limit is not a number");
+        else if (n < 0) emit(i, "INC-015", "CreditLimit", "Credit limit is negative");
+      }
+      if (meta.entity === "Vendor" && !dqIsBlank(r.BankIBAN) && !dqValidIban(dqText(r.BankIBAN), ibanLengths))
+        emit(i, "INC-016", "BankIBAN", "IBAN fails length or mod-97 checksum validation");
+      if (meta.entity === "Material") {
+        const mt = dqTrim(r.MaterialType);
+        if (!dqIsBlank(r.BaseUoM) && !inList("UoM", r.BaseUoM))
+          emit(i, "INC-011", "BaseUoM", "'" + dqTrim(r.BaseUoM) + "' is not an approved unit of measure");
+        if (mt !== "" && !inList("MaterialType", mt))
+          emit(i, "INC-012", "MaterialType", "'" + mt + "' is not an approved material type");
+        if (!dqIsBlank(r.Plant) && !inList("Plant", r.Plant))
+          emit(i, "INC-017", "Plant", "'" + dqTrim(r.Plant) + "' is not an approved plant");
+        const vid = dqTrim(r.PreferredVendorID);
+        if (vid === "" && inList("PurchasedMaterialType", mt))
+          emit(i, "MIS-002", "PreferredVendorID", "Material type " + mt + " is purchased and needs a preferred vendor");
+        if (vid !== "") {
+          if (!dqHas(vendorStatus, vid)) emit(i, "INC-013", "PreferredVendorID", "Vendor " + vid + " does not exist in the vendor master", undefined, vid);
+          else if (vendorStatus[vid] === "Blocked") emit(i, "INC-014", "PreferredVendorID", "Vendor " + vid + " is blocked", undefined, vid);
+        }
+        if (!dqIsBlank(r.StandardPrice)) {
+          const n = dqNumber(r.StandardPrice);
+          if (isNaN(n)) emit(i, "INC-015", "StandardPrice", "Standard price is not a number");
+          else if (n <= 0) emit(i, "INC-015", "StandardPrice", "Standard price must be greater than zero");
+        }
+        if (!dqIsBlank(r.GrossWeightKg)) {
+          const n = dqNumber(r.GrossWeightKg);
+          if (isNaN(n)) emit(i, "INC-015", "GrossWeightKg", "Gross weight is not a number");
+          else if (n < 0) emit(i, "INC-015", "GrossWeightKg", "Gross weight is negative");
+        }
+      }
+    });
+  });
+
+  // deterministic ordering: severity desc, entity, row, rule, field (ordinal)
+  const entOrder: { [e: string]: number } = { Customer: 1, Vendor: 2, Material: 3 };
+  out.sort((a, b) =>
+    b.SeverityRank - a.SeverityRank || entOrder[a.Entity] - entOrder[b.Entity] || a.SourceRow - b.SourceRow ||
+    (a.RuleID < b.RuleID ? -1 : a.RuleID > b.RuleID ? 1 : 0) || (a.Field < b.Field ? -1 : a.Field > b.Field ? 1 : 0));
+
+  const entities: DQEntitySummary[] = DQ_ENTITIES.map(meta => {
+    const ex = out.filter(e => e.Entity === meta.entity);
+    const recs: { [row: number]: boolean } = {};
+    ex.forEach(e => { recs[e.SourceRow] = true; });
+    const n = dataByEntity[meta.entity].length, bad = Object.keys(recs).length;
+    const sev = (s: string): number => ex.filter(e => e.Severity === s).length;
+    return { Entity: meta.entity, Records: n, RecordsWithExceptions: bad, CleanRecords: n - bad,
+             CleanRate: n === 0 ? 1 : (n - bad) / n, Exceptions: ex.length,
+             Critical: sev("Critical"), High: sev("High"), Medium: sev("Medium"), Low: sev("Low") };
+  });
+  const sum = (f: (e: DQEntitySummary) => number): number => entities.reduce((a, e) => a + f(e), 0);
+  const records = sum(e => e.Records), bad = sum(e => e.RecordsWithExceptions);
+  return {
+    runDate, exceptions: out, entities,
+    totals: { records, exceptions: out.length, recordsWithExceptions: bad,
+              cleanRate: records === 0 ? 1 : (records - bad) / records,
+              critical: sum(e => e.Critical), high: sum(e => e.High), medium: sum(e => e.Medium), low: sum(e => e.Low) },
+  };
+}
+
+// --------------------------------------------------------------- reporting
+function dqCsvEscape(v: string | number): string {
+  const s = String(v);
+  return /[",\r\n]/.test(s) ? '"' + s.split('"').join('""') + '"' : s;
+}
+const DQ_REPORT_COLUMNS: string[] = ["ExceptionID", "RunDate", "Entity", "SourceRow", "RecordID", "RecordName",
+  "Region", "RuleID", "Category", "RuleName", "Field", "Value", "Details", "Severity", "SeverityRank",
+  "RelatedRecordID", "OwnerName", "OwnerEmail", "Status"];
+
+function dqToCsv(exceptions: DQException[]): string {
+  const lines = [DQ_REPORT_COLUMNS.join(",")];
+  exceptions.forEach(e => {
+    const rec = e as unknown as { [k: string]: string | number };
+    lines.push(DQ_REPORT_COLUMNS.map(c => dqCsvEscape(rec[c])).join(","));
+  });
+  return lines.join("\r\n");
+}
+
+function dqHtmlEscape(s: string): string {
+  return s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;");
+}
+
+const DQ_SEV_COLORS: { [s: string]: string[] } = {
+  Critical: ["#FDE7EA", "#B4232F"], High: ["#FFF1E5", "#B5520B"], Medium: ["#FFF8DB", "#8A6A00"], Low: ["#E9F2FF", "#1F5FAD"],
+};
+
+/** Inline-styled HTML email body (Outlook-safe: tables + inline CSS only). */
+function dqOwnerEmailHtml(ownerName: string, exceptions: DQException[], runDate: string, reportUrl: string): string {
+  const sevCount = (s: string): number => exceptions.filter(e => e.Severity === s).length;
+  const chip = (s: string): string => {
+    const c = DQ_SEV_COLORS[s] || ["#EEE", "#333"];
+    return '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:600;background:' +
+      c[0] + ';color:' + c[1] + ';">' + s + "</span>";
+  };
+  const tile = (label: string, n: number, color: string): string =>
+    '<td style="padding:12px 16px;border-radius:8px;background:#F6F7FB;text-align:center;">' +
+    '<div style="font-size:24px;font-weight:700;color:' + color + ';">' + n + '</div>' +
+    '<div style="font-size:12px;color:#5B6475;">' + label + "</div></td><td style=\"width:8px\"></td>";
+  const rows = exceptions.slice(0, 200).map((e, i) =>
+    '<tr style="background:' + (i % 2 ? "#FAFBFD" : "#FFFFFF") + ';">' +
+    '<td style="padding:8px;border-bottom:1px solid #E6E8EF;">' + chip(e.Severity) + "</td>" +
+    '<td style="padding:8px;border-bottom:1px solid #E6E8EF;">' + dqHtmlEscape(e.Entity) + "</td>" +
+    '<td style="padding:8px;border-bottom:1px solid #E6E8EF;font-family:Consolas,monospace;">' + dqHtmlEscape(e.RecordID) + "</td>" +
+    '<td style="padding:8px;border-bottom:1px solid #E6E8EF;">' + dqHtmlEscape(e.RecordName) + "</td>" +
+    '<td style="padding:8px;border-bottom:1px solid #E6E8EF;"><b>' + dqHtmlEscape(e.RuleName) + "</b><br><span style=\"color:#5B6475;\">" +
+    dqHtmlEscape(e.Field) + ": " + dqHtmlEscape(e.Details) + "</span></td></tr>").join("");
+  const more = exceptions.length > 200
+    ? '<p style="color:#5B6475;font-size:13px;">Showing the first 200 of ' + exceptions.length + " exceptions. The full list is in the report.</p>" : "";
+  return '<div style="font-family:Segoe UI,Arial,sans-serif;color:#1C2333;max-width:860px;">' +
+    '<div style="background:#1E3A8A;background:linear-gradient(135deg,#1E3A8A,#4F46E5);padding:20px 24px;border-radius:10px 10px 0 0;">' +
+    '<div style="color:#C7D2FE;font-size:12px;letter-spacing:1px;text-transform:uppercase;">Weekly master data quality report</div>' +
+    '<div style="color:#FFFFFF;font-size:22px;font-weight:700;margin-top:4px;">' + exceptions.length + " exceptions need your review</div>" +
+    '<div style="color:#E0E7FF;font-size:13px;margin-top:4px;">Run date ' + runDate + "</div></div>" +
+    '<div style="border:1px solid #E6E8EF;border-top:none;padding:20px 24px;border-radius:0 0 10px 10px;">' +
+    "<p>Hi " + dqHtmlEscape(ownerName.split(" (")[0].split(" ")[0]) + ",</p>" +
+    "<p>This week's automated check found the following issues in master data records you own. Please correct them in the source system before next Monday's run.</p>" +
+    '<table cellspacing="0" cellpadding="0" style="margin:16px 0;"><tr>' +
+    tile("Critical", sevCount("Critical"), "#B4232F") + tile("High", sevCount("High"), "#B5520B") +
+    tile("Medium", sevCount("Medium"), "#8A6A00") + tile("Low", sevCount("Low"), "#1F5FAD") + "</tr></table>" +
+    (reportUrl ? '<p><a href="' + dqHtmlEscape(reportUrl) + '" style="display:inline-block;background:#4F46E5;color:#FFFFFF;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:600;">Open the full exception report</a></p>' : "") +
+    '<table cellspacing="0" cellpadding="0" style="width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;">' +
+    '<tr style="background:#EEF0F6;text-align:left;"><th style="padding:8px;">Severity</th><th style="padding:8px;">Entity</th>' +
+    '<th style="padding:8px;">Record</th><th style="padding:8px;">Name</th><th style="padding:8px;">Issue</th></tr>' +
+    rows + "</table>" + more +
+    '<p style="color:#5B6475;font-size:12px;margin-top:20px;">Sent automatically by the Master Data Quality flow. Reply to this email if a rule looks wrong.</p>' +
+    "</div></div>";
+}
+
+interface DQOwnerPacket { OwnerName: string; OwnerEmail: string; Count: number; Critical: number; High: number;
+  Medium: number; Low: number; Html: string; }
+
+function dqOwnerPackets(result: DQResult, reportUrl: string): DQOwnerPacket[] {
+  const byOwner: { [email: string]: DQException[] } = {};
+  result.exceptions.forEach(e => { (byOwner[e.OwnerEmail] = byOwner[e.OwnerEmail] || []).push(e); });
+  return Object.keys(byOwner).sort().map(email => {
+    const ex = byOwner[email];
+    const c = (s: string): number => ex.filter(e => e.Severity === s).length;
+    return { OwnerName: ex[0].OwnerName, OwnerEmail: email, Count: ex.length, Critical: c("Critical"),
+             High: c("High"), Medium: c("Medium"), Low: c("Low"),
+             Html: dqOwnerEmailHtml(ex[0].OwnerName, ex, result.runDate, reportUrl) };
+  });
+}
+
+// ------------------------------------------------- governance summary email
+function dqSummaryEmailHtml(result: DQResult, packets: DQOwnerPacket[], reportUrl: string): string {
+  const t = result.totals;
+  const kpi = (label: string, value: string, color: string): string =>
+    '<td style="padding:12px 14px;background:#F6F7FB;border-radius:8px;text-align:center;">' +
+    '<div style="font-size:22px;font-weight:700;color:' + color + ';">' + value + '</div>' +
+    '<div style="font-size:11px;color:#5B6475;text-transform:uppercase;letter-spacing:.5px;">' + label + "</div></td><td style=\"width:8px\"></td>";
+  const ents = result.entities.map(e => "<tr><td style=\"padding:6px 8px;border-bottom:1px solid #E6E8EF;\"><b>" + e.Entity + "</b></td>" +
+    [String(e.Records), String(e.RecordsWithExceptions), (e.CleanRate * 100).toFixed(1) + "%", String(e.Critical), String(e.High),
+     String(e.Medium), String(e.Low)].map(v => '<td style="padding:6px 8px;border-bottom:1px solid #E6E8EF;text-align:center;">' + v + "</td>").join("") + "</tr>").join("");
+  const owners = packets.map(p => '<tr><td style="padding:6px 8px;border-bottom:1px solid #E6E8EF;">' + dqHtmlEscape(p.OwnerName) +
+    '<br><span style="color:#5B6475;font-size:11px;">' + dqHtmlEscape(p.OwnerEmail) + "</span></td>" +
+    [String(p.Count), String(p.Critical), String(p.High), String(p.Medium), String(p.Low)].map(v =>
+      '<td style="padding:6px 8px;border-bottom:1px solid #E6E8EF;text-align:center;">' + v + "</td>").join("") + "</tr>").join("");
+  const th = (h: string): string => '<th style="padding:6px 8px;background:#EEF0F6;text-align:center;font-size:12px;">' + h + "</th>";
+  return '<div style="font-family:Segoe UI,Arial,sans-serif;color:#1C2333;max-width:860px;">' +
+    '<div style="background:#1E2A5A;padding:20px 24px;border-radius:10px 10px 0 0;">' +
+    '<div style="color:#C7D2FE;font-size:12px;letter-spacing:1px;text-transform:uppercase;">Master data quality - weekly summary</div>' +
+    '<div style="color:#FFFFFF;font-size:22px;font-weight:700;margin-top:4px;">' + t.exceptions + " exceptions across " + t.records + " records</div>" +
+    '<div style="color:#E0E7FF;font-size:13px;margin-top:4px;">Run date ' + result.runDate + " &middot; " + packets.length + " data owners notified</div></div>" +
+    '<div style="border:1px solid #E6E8EF;border-top:none;padding:20px 24px;border-radius:0 0 10px 10px;">' +
+    '<table cellspacing="0" cellpadding="0"><tr>' + kpi("Clean record rate", (t.cleanRate * 100).toFixed(1) + "%", "#1E7B3A") +
+    kpi("Critical", String(t.critical), "#B4232F") + kpi("High", String(t.high), "#B5520B") + kpi("Medium", String(t.medium), "#8A6A00") +
+    kpi("Low", String(t.low), "#1F5FAD") + "</tr></table>" +
+    (reportUrl ? '<p style="margin:18px 0;"><a href="' + dqHtmlEscape(reportUrl) + '" style="background:#4F46E5;color:#FFFFFF;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:600;">Open the full exception report</a></p>' : "") +
+    '<h3 style="font-size:15px;margin:18px 0 6px;">Health by entity</h3><table cellspacing="0" style="width:100%;border-collapse:collapse;font-size:13px;"><tr>' +
+    ["Entity", "Records", "With issues", "Clean rate", "Critical", "High", "Medium", "Low"].map(th).join("") + "</tr>" + ents + "</table>" +
+    '<h3 style="font-size:15px;margin:18px 0 6px;">Exceptions by data owner</h3><table cellspacing="0" style="width:100%;border-collapse:collapse;font-size:13px;"><tr>' +
+    ["Owner", "Open", "Critical", "High", "Medium", "Low"].map(th).join("") + "</tr>" + owners + "</table>" +
+    '<p style="color:#5B6475;font-size:12px;margin-top:20px;">The CSV exception report is attached. Sent automatically by the Master Data Quality flow.</p></div></div>';
+}
+
+// ------------------------------------------------- standalone HTML report (saved to SharePoint)
+function dqReportHtml(result: DQResult): string {
+  const t = result.totals;
+  const rows = result.exceptions.map(e => {
+    const c = DQ_SEV_COLORS[e.Severity] || ["#EEE", "#333"];
+    return "<tr><td><span class=\"sev\" style=\"background:" + c[0] + ";color:" + c[1] + "\">" + e.Severity + "</span></td><td>" +
+      [e.Entity, e.RecordID, e.RecordName, e.RuleID + " " + e.RuleName, e.Field, e.Value, e.Details, e.OwnerName]
+        .map(v => dqHtmlEscape(String(v))).join("</td><td>") + "</td></tr>";
+  }).join("");
+  const card = (l: string, v: string, col: string): string => '<div class="card"><b style="color:' + col + '">' + v + "</b><span>" + l + "</span></div>";
+  return "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
+    "<title>Data Quality Report " + result.runDate + "</title><style>" +
+    "body{font-family:Segoe UI,Arial,sans-serif;margin:0;background:#F5F6FA;color:#1C2333}header{background:#1E2A5A;color:#fff;padding:28px 32px}" +
+    "header small{color:#C7D2FE;text-transform:uppercase;letter-spacing:1px}h1{margin:6px 0 0;font-size:26px}main{padding:24px 32px}" +
+    ".cards{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}.card{background:#fff;border-radius:10px;padding:14px 18px;min-width:130px;box-shadow:0 1px 3px rgba(0,0,0,.08)}" +
+    ".card b{display:block;font-size:26px}.card span{font-size:12px;color:#5B6475;text-transform:uppercase}" +
+    "input{padding:8px 12px;border:1px solid #CBD2E1;border-radius:8px;width:320px;max-width:100%;margin-bottom:12px}" +
+    "table{border-collapse:collapse;width:100%;background:#fff;border-radius:10px;overflow:hidden;font-size:13px}th{background:#EEF0F6;text-align:left;padding:8px;position:sticky;top:0}" +
+    "td{padding:7px 8px;border-top:1px solid #E6E8EF;vertical-align:top}.sev{padding:2px 8px;border-radius:10px;font-weight:600;font-size:12px}</style></head><body>" +
+    "<header><small>Automated master data quality check</small><h1>Weekly exception report &middot; " + result.runDate + "</h1></header><main><div class=\"cards\">" +
+    card("Records checked", String(t.records), "#1E2A5A") + card("Exceptions", String(t.exceptions), "#4F46E5") +
+    card("Clean record rate", (t.cleanRate * 100).toFixed(1) + "%", "#1E7B3A") + card("Critical", String(t.critical), "#B4232F") +
+    card("High", String(t.high), "#B5520B") + card("Medium", String(t.medium), "#8A6A00") + card("Low", String(t.low), "#1F5FAD") +
+    "</div><input id=\"q\" placeholder=\"Filter exceptions...\" oninput=\"var v=this.value.toLowerCase();document.querySelectorAll('tbody tr').forEach(function(r){r.style.display=r.textContent.toLowerCase().indexOf(v)>=0?'':'none'})\">" +
+    "<table><thead><tr><th>Severity</th><th>Entity</th><th>Record</th><th>Name</th><th>Rule</th><th>Field</th><th>Value</th><th>Details</th><th>Owner</th></tr></thead><tbody>" +
+    rows + "</tbody></table></main></body></html>";
+}
